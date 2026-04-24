@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GST Litigation Tracker — ABS General Solutions</title>
+<style>
+:root{
+  --sidebar:#0f172a;--sidebar-hover:#1e293b;--sidebar-active:#2563eb;
+  --primary:#2563eb;--primary-dk:#1d4ed8;--primary-lt:#eff6ff;
+  --bg:#f1f5f9;--surface:#fff;--surface2:#f8fafc;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#1e293b;--muted:#64748b;--hint:#94a3b8;
+  --success:#16a34a;--success-lt:#f0fdf4;
+  --warn:#d97706;--warn-lt:#fffbeb;
+  --danger:#dc2626;--danger-lt:#fef2f2;
+  --purple:#7c3aed;--purple-lt:#f5f3ff;
+  --amber:#b45309;--amber-lt:#fef3c7;
+  --teal:#0d9488;--teal-lt:#f0fdfa;
+  --radius:8px;--radius-lg:12px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;font-size:14px;color:var(--text);background:var(--bg);display:flex;height:100vh;overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;font-size:13px}
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+#sidebar{width:220px;min-width:220px;background:var(--sidebar);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.sb-brand{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand .logo{font-size:13px;font-weight:700;color:#fff;letter-spacing:.5px;line-height:1.3}
+.sb-brand .tagline{font-size:10px;color:var(--hint);margin-top:2px;letter-spacing:.3px}
+.sb-section{padding:12px 8px 4px;font-size:10px;font-weight:600;color:#475569;letter-spacing:.08em;text-transform:uppercase;padding-left:16px}
+.sb-nav{flex:1;padding:8px 0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:#94a3b8;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border-left:3px solid transparent;position:relative}
+.sb-item:hover{background:var(--sidebar-hover);color:#e2e8f0}
+.sb-item.active{background:rgba(37,99,235,.15);color:#93c5fd;border-left-color:var(--primary)}
+.sb-item .icon{width:16px;height:16px;flex-shrink:0;opacity:.8}
+.sb-item .badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-footer .firm{font-size:11px;color:#94a3b8;line-height:1.5}
+.sb-footer .firm strong{color:#e2e8f0;font-size:12px;display:block}
+
+/* ── MAIN ────────────────────────────────────────────────── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+#topbar .page-title{font-size:16px;font-weight:600;color:var(--text)}
+#topbar .page-sub{font-size:12px;color:var(--muted);margin-left:6px}
+#topbar .spacer{flex:1}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;width:240px}
+.search-bar input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%}
+.search-bar svg{color:var(--muted);flex-shrink:0}
+.topbar-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .15s}
+.topbar-btn:hover{background:var(--bg);color:var(--text);border-color:var(--border2)}
+#content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.section{display:none}
+.section.active{display:block}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sec-title{font-size:18px;font-weight:700;color:var(--text)}
+.sec-sub{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ── CARDS ───────────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.blue::before{background:var(--primary)}
+.kpi.red::before{background:var(--danger)}
+.kpi.amber::before{background:var(--warn)}
+.kpi.green::before{background:var(--success)}
+.kpi.purple::before{background:var(--purple)}
+.kpi-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.kpi-val{font-size:32px;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:6px}
+.kpi-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:.06;font-size:56px}
+
+/* ── CARDS GRID ──────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-body{padding:20px}
+.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+
+/* ── BUTTONS ─────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);border:none;font-weight:500;font-size:13px;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dk)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}.btn-outline:hover{background:var(--bg);border-color:var(--border2)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#15803d}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.btn-icon{padding:6px;border-radius:var(--radius);background:none;border:1px solid var(--border);color:var(--muted)}.btn-icon:hover{background:var(--bg);color:var(--text)}
+
+/* ── BADGES ──────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-pending{background:var(--warn-lt);color:var(--warn)}
+.badge-replied{background:#eff6ff;color:#1d4ed8}
+.badge-order{background:var(--purple-lt);color:var(--purple)}
+.badge-closed{background:var(--success-lt);color:var(--success)}
+.badge-overdue{background:var(--danger-lt);color:var(--danger)}
+.badge-filed{background:var(--teal-lt);color:var(--teal)}
+.badge-decided{background:var(--success-lt);color:var(--success)}
+.badge-highrisk{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.badge-s74{background:#fff1f2;color:#be123c;font-weight:700}
+.badge-notice{background:#f0f9ff;color:#0369a1}
+.badge-order-type{background:#f5f3ff;color:#6d28d9}
+.badge-paid{background:var(--success-lt);color:var(--success)}
+.badge-notpaid{background:var(--danger-lt);color:var(--danger)}
+.badge-stay{background:var(--amber-lt);color:var(--amber)}
+
+/* ── TABLES ──────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--surface2);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.data-row:hover td{background:#f8fafc}
+tr.overdue td{background:#fff5f5}
+tr.overdue td:first-child{border-left:3px solid var(--danger)}
+tr.due-soon td{background:#fffbeb}
+tr.due-soon td:first-child{border-left:3px solid var(--warn)}
+.td-mono{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+.td-muted{color:var(--muted);font-size:12px}
+.td-amount{font-weight:600;font-family:ui-monospace,monospace}
+.sort-icon{font-size:9px;margin-left:4px;color:var(--hint)}
+
+/* ── TOOLBAR ─────────────────────────────────────────────── */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.toolbar-input{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px}
+.toolbar-input input,.toolbar-input select{border:none;background:none;outline:none;font-size:13px;color:var(--text);font-family:inherit}
+.toolbar-input input{width:200px}
+.toolbar-input select{min-width:140px}
+.ml-auto{margin-left:auto}
+
+/* ── FORMS ───────────────────────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid.g3{grid-template-columns:1fr 1fr 1fr}
+.form-grid.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.span2{grid-column:span 2}
+.fg.span3{grid-column:span 3}
+.fg.span4{grid-column:span 4}
+.fg label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.fg input,.fg select,.fg textarea{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--surface);font-family:inherit;transition:border .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.fg textarea{resize:vertical;min-height:72px}
+.fg input.error,.fg select.error{border-color:var(--danger)}
+.field-error{font-size:11px;color:var(--danger);margin-top:2px}
+.form-section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:12px 0 8px;border-bottom:1px solid var(--border);margin-bottom:12px;grid-column:1/-1}
+.calc-note{font-size:11px;color:var(--primary);margin-top:3px}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;overflow-y:auto;padding:40px 20px}
+#modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:760px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:var(--text)}
+.modal-close{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:4px}.modal-close:hover{background:var(--bg)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast-item{background:var(--text);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:var(--shadow-md);animation:fadeIn .2s ease;display:flex;align-items:center;gap:8px;min-width:240px}
+.toast-item.success{background:var(--success)}
+.toast-item.danger{background:var(--danger)}
+.toast-item.warn{background:var(--warn)}
+@keyframes fadeIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── TIMELINE ────────────────────────────────────────────── */
+.timeline-wrap{display:flex;flex-direction:column;gap:20px}
+.timeline-notice{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.tn-header{padding:14px 20px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tn-steps{display:flex;align-items:stretch;padding:20px}
+.tn-step{flex:1;position:relative;min-width:140px}
+.tn-step:not(:last-child)::after{content:'';position:absolute;top:20px;left:calc(50% + 20px);right:0;height:2px;background:var(--border)}
+.tn-step.done:not(:last-child)::after{background:var(--primary)}
+.tn-dot-wrap{display:flex;justify-content:center;margin-bottom:10px}
+.tn-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid var(--border);background:var(--surface);color:var(--hint);font-weight:700;font-size:12px;position:relative;z-index:1}
+.tn-step.done .tn-dot{background:var(--primary);border-color:var(--primary);color:#fff}
+.tn-step.active .tn-dot{background:var(--warn);border-color:var(--warn);color:#fff;box-shadow:0 0 0 4px var(--warn-lt)}
+.tn-step.overdue .tn-dot{background:var(--danger);border-color:var(--danger);color:#fff;box-shadow:0 0 0 4px var(--danger-lt)}
+.tn-label{text-align:center;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.tn-date{text-align:center;font-size:11px;color:var(--hint);margin-top:2px}
+
+/* ── ALERTS ──────────────────────────────────────────────── */
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:flex-start;gap:14px;border-left:4px solid var(--border)}
+.alert-item.red{border-left-color:var(--danger);background:var(--danger-lt)}
+.alert-item.amber{border-left-color:var(--warn);background:var(--warn-lt)}
+.alert-item.blue{border-left-color:var(--primary);background:var(--primary-lt)}
+.alert-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.alert-title{font-size:13px;font-weight:600;color:var(--text)}
+.alert-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.alert-meta{font-size:11px;color:var(--hint);margin-top:4px;display:flex;gap:10px}
+
+/* ── DASH RECENT ─────────────────────────────────────────── */
+.recent-list{display:flex;flex-direction:column}
+.recent-item{padding:12px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.recent-item:last-child{border-bottom:none}
+.ri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ri-content{flex:1;min-width:0}
+.ri-title{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.ri-badge{flex-shrink:0}
+
+/* ── PROGRESS BAR ────────────────────────────────────────── */
+.stat-bar-wrap{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+.stat-bar-item{display:flex;align-items:center;gap:10px}
+.stat-bar-label{font-size:12px;color:var(--muted);width:100px;flex-shrink:0}
+.stat-bar{flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.stat-bar-val{font-size:12px;font-weight:600;color:var(--text);width:28px;text-align:right;flex-shrink:0}
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+.empty-state .es-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
+.empty-state .es-sub{font-size:13px}
+
+/* ── MISC ────────────────────────────────────────────────── */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.text-danger{color:var(--danger)}
+.text-success{color:var(--success)}
+.text-warn{color:var(--warn)}
+.text-muted{color:var(--muted)}
+.font-mono{font-family:ui-monospace,monospace}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--bg);color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sb-brand">
+    <div class="logo">&#9654; GST Litigation</div>
+    <div class="tagline">Tracker &amp; Manager</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Main</div>
+    <div class="sb-item active" onclick="nav('dashboard')" id="nav-dashboard">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item" onclick="nav('alerts')" id="nav-alerts">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      Alerts
+      <span class="badge" id="alert-badge" style="display:none">0</span>
+    </div>
+    <div class="sb-section">Records</div>
+    <div class="sb-item" onclick="nav('clients')" id="nav-clients">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      Clients
+    </div>
+    <div class="sb-item" onclick="nav('notices')" id="nav-notices">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Notices
+    </div>
+    <div class="sb-item" onclick="nav('replies')" id="nav-replies">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+      Replies
+    </div>
+    <div class="sb-item" onclick="nav('orders')" id="nav-orders">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      Orders
+    </div>
+    <div class="sb-item" onclick="nav('appeals')" id="nav-appeals">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+      Appeals
+    </div>
+    <div class="sb-item" onclick="nav('timeline')" id="nav-timeline">
+      <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      Timeline
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="firm"><strong>ABS General Solutions India</strong>CA Praveen N Mulagund<br>M.No. 270956</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <span class="page-title" id="page-title">Dashboard</span>
+      <span class="page-sub" id="page-sub"></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="search-bar">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" placeholder="Search notices, clients…" id="global-search" oninput="globalSearch(this.value)">
+    </div>
+    <button class="topbar-btn btn-sm" onclick="exportCSV()">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      Export CSV
+    </button>
+    <div style="display:flex;align-items:center;gap:6px;padding:0 10px;border-left:1px solid var(--border)">
+      <span id="db-status" style="font-size:11px;color:var(--muted)">&#9679; Connecting…</span>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay" style="position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+      <div style="font-size:32px">&#9654;</div>
+      <div style="font-size:15px;font-weight:600;color:var(--text)">Loading GST Tracker…</div>
+      <div style="font-size:13px;color:var(--muted)" id="loading-msg">Connecting to Firebase…</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="sec-header">
+        <div><div class="sec-title">Dashboard</div><div class="sec-sub">Overview of GST litigation portfolio</div></div>
+        <div style="display:flex;gap:8px">
+          <select style="padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--surface);outline:none" id="dash-client-filter" onchange="renderDashboard()">
+            <option value="">All Clients</option>
+          </select>
+        </div>
+      </div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Notices</span>
+            <button class="btn btn-outline btn-sm" onclick="nav('notices')">View all</button>
+          </div>
+          <div class="card-body" id="dash-recent"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Notice Status</span></div>
+          <div class="card-body" id="dash-chart"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Upcoming Deadlines (Next 30 days)</span></div>
+        <div class="card-body" id="dash-deadlines"></div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="section" id="sec-alerts">
+      <div class="sec-header">
+        <div><div class="sec-title">Alerts &amp; Compliance</div><div class="sec-sub">Overdue actions and upcoming deadlines</div></div>
+      </div>
+      <div class="alert-list" id="alert-list"></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="section" id="sec-clients">
+      <div class="sec-header">
+        <div><div class="sec-title">Client Master</div><div class="sec-sub" id="client-count"></div></div>
+        <button class="btn btn-primary" onclick="openClientModal()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Client
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-input"><input type="text" placeholder="Search clients…" id="client-search" oninput="renderClients()"></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('clients','name')">Client Name <span class="sort-icon">&#8597;</span></th>
+            <th onclick="sortTable('clients','gstin')">GSTIN <span class="sort-icon">&#8597;</span></th>
+            <th onclick="sortTable('clients','state')">State <span class="sort-icon">&#8597;</span></th>
+            <th>Contact Person</th>
+            <th>Notices</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="client-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NOTICES -->
+    <div class="section" id="sec-notices">
+      <div class="sec-header">
+        <div><div class="sec-title">Notice Tracker</div><div class="sec-sub" id="notice-count"></div></div>
+        <button class="btn btn-primary" onclick="openNoticeModal()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Notice
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-input"><input type="text" placeholder="Search notices…" id="notice-search" oninput="renderNotices()"></div>
+        <div class="toolbar-input">
+          <select id="notice-filter-client" onchange="renderNotices()"><option value="">All Clients</option></select>
+        </div>
+        <div class="toolbar-input">
+          <select id="notice-filter-status" onchange="renderNotices()">
+            <option value="">All Status</option>
+            <option>Pending Reply</option><option>Replied</option><option>Order Received</option><option>Closed</option>
+          </select>
+        </div>
+        <div class="toolbar-input">
+          <select id="notice-filter-section" onchange="renderNotices()">
+            <option value="">All Sections</option>
+            <option>Sec 61</option><option>Sec 65</option><option>Sec 66</option>
+            <option>Sec 73</option><option>Sec 74</option><option>Sec 75</option>
+          </select>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-left:4px">
+          <input type="checkbox" id="notice-filter-overdue" onchange="renderNotices()"> Overdue only
+        </label>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Client</th>
+            <th onclick="sortTable('notices','noticeType')">Notice Type <span class="sort-icon">&#8597;</span></th>
+            <th>Section</th>
+            <th>Case ID</th>
+            <th>Ref No.</th>
+            <th onclick="sortTable('notices','dateOfIssue')">Date Issued <span class="sort-icon">&#8597;</span></th>
+            <th onclick="sortTable('notices','replyDueDate')">Reply Due <span class="sort-icon">&#8597;</span></th>
+            <th>Tax Period</th>
+            <th class="td-amount">Amount (₹)</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="notice-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REPLIES -->
+    <div class="section" id="sec-replies">
+      <div class="sec-header">
+        <div><div class="sec-title">Reply Tracking</div><div class="sec-sub" id="reply-count"></div></div>
+        <button class="btn btn-primary" onclick="openReplyModal()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Log Reply
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-input"><input type="text" placeholder="Search replies…" id="reply-search" oninput="renderReplies()"></div>
+        <div class="toolbar-input">
+          <select id="reply-filter-client" onchange="renderReplies()"><option value="">All Clients</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Client</th><th>Notice Ref</th><th>Notice Type</th>
+            <th onclick="sortTable('replies','replyDate')">Reply Date <span class="sort-icon">&#8597;</span></th>
+            <th>Mode</th><th>Ack. No.</th><th>Remarks</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="reply-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="section" id="sec-orders">
+      <div class="sec-header">
+        <div><div class="sec-title">Order Tracking</div><div class="sec-sub" id="order-count"></div></div>
+        <button class="btn btn-primary" onclick="openOrderModal()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Order
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-input"><input type="text" placeholder="Search orders…" id="order-search" oninput="renderOrders()"></div>
+        <div class="toolbar-input">
+          <select id="order-filter-client" onchange="renderOrders()"><option value="">All Clients</option></select>
+        </div>
+        <div class="toolbar-input">
+          <select id="order-filter-payment" onchange="renderOrders()">
+            <option value="">All Payment</option><option>Not Paid</option><option>Paid</option><option>Stay Granted</option><option>Partially Paid</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Client</th><th>Notice Ref</th><th>Order Type</th>
+            <th onclick="sortTable('orders','orderDate')">Order Date <span class="sort-icon">&#8597;</span></th>
+            <th class="td-amount">Demand Conf. (₹)</th>
+            <th class="td-amount">Demand Dropped (₹)</th>
+            <th class="td-amount">Refund (₹)</th>
+            <th>Payment</th><th>Appeal Deadline</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="order-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- APPEALS -->
+    <div class="section" id="sec-appeals">
+      <div class="sec-header">
+        <div><div class="sec-title">Appeal Tracker</div><div class="sec-sub" id="appeal-count"></div></div>
+        <button class="btn btn-primary" onclick="openAppealModal()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          File Appeal
+        </button>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-input"><input type="text" placeholder="Search appeals…" id="appeal-search" oninput="renderAppeals()"></div>
+        <div class="toolbar-input">
+          <select id="appeal-filter-status" onchange="renderAppeals()">
+            <option value="">All Status</option><option>Filed</option><option>Pending Hearing</option><option>Decided</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Client</th><th>Notice Ref</th><th>Appeal Type</th><th>Section</th>
+            <th onclick="sortTable('appeals','filingDate')">Filed On <span class="sort-icon">&#8597;</span></th>
+            <th class="td-amount">Pre-deposit (₹)</th>
+            <th>Status</th>
+            <th onclick="sortTable('appeals','nextHearingDate')">Next Hearing <span class="sort-icon">&#8597;</span></th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="appeal-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="section" id="sec-timeline">
+      <div class="sec-header">
+        <div><div class="sec-title">Case Timeline</div><div class="sec-sub">Notice lifecycle: Notice → Reply → Order → Appeal</div></div>
+        <div class="toolbar-input">
+          <select id="timeline-filter-client" onchange="renderTimeline()"><option value="">All Clients</option></select>
+        </div>
+      </div>
+      <div class="timeline-wrap" id="timeline-wrap"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Modal</span>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════════════════════
+const FB_URL    = 'https://gst-tracker-12438-default-rtdb.firebaseio.com/gst';
+const FB_SECRET = 'hpJCHlRCbY00tIBnPOWoHGI0cCj2tL3OfkbozKm3';
+const FB_AUTH   = `?auth=${FB_SECRET}`;
+
+// ═══════════════════════════════════════════════════════════
+// DATA LAYER — Firebase Realtime Database (REST API)
+// All data lives at /gst in Firebase. In-memory cache for
+// fast reads; writes go to Firebase with debounce.
+// ═══════════════════════════════════════════════════════════
+const DB = {
+  _mem: { clients:[], notices:[], replies:[], orders:[], appeals:[] },
+  _loaded: false,
+  _saveTimer: null,
+
+  // Synchronous read from in-memory cache (instant)
+  get(k){ return this._mem[k] || []; },
+
+  // Write to cache and schedule Firebase sync
+  set(k, d){
+    this._mem[k] = d;
+    this._scheduleSave();
+  },
+
+  // Debounce saves — 500ms after last change
+  _scheduleSave(){
+    clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(() => this._save(), 500);
+  },
+
+  // Push full state to Firebase
+  async _save(){
+    this._setStatus('saving');
+    try{
+      const res = await fetch(FB_URL + '.json' + FB_AUTH, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this._mem)
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      this._setStatus('saved');
+    } catch(e){
+      console.error('Firebase save error:', e);
+      this._setStatus('error');
+      toast('Save failed — check internet connection', 'danger');
+    }
+  },
+
+  // Load full state from Firebase on startup
+  async load(){
+    this._setStatus('loading');
+    try{
+      const res = await fetch(FB_URL + '.json' + FB_AUTH);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if(data){
+        ['clients','notices','replies','orders','appeals'].forEach(k=>{
+          if(Array.isArray(data[k])) this._mem[k] = data[k];
+        });
+      }
+      this._loaded = true;
+      this._setStatus('connected');
+      return true;
+    } catch(e){
+      console.error('Firebase load error:', e);
+      this._setStatus('error');
+      toast('Could not connect to Firebase — check internet', 'danger');
+      return false;
+    }
+  },
+
+  _setStatus(state){
+    const el = document.getElementById('db-status');
+    if(!el) return;
+    const map = {
+      loading:   `<span style="color:var(--warn)">&#9679;</span> Loading…`,
+      saving:    `<span style="color:var(--warn)">&#9679;</span> Saving…`,
+      saved:     `<span style="color:var(--success)">&#10003;</span> Saved`,
+      connected: `<span style="color:var(--success)">&#9679;</span> Firebase`,
+      error:     `<span style="color:var(--danger)">&#9888;</span> Save error`
+    };
+    el.innerHTML = map[state] || '';
+  },
+
+  genId(){ return Date.now().toString(36)+Math.random().toString(36).substr(2,5); },
+
+  create(k, obj){
+    const a = this.get(k);
+    obj.id = this.genId();
+    obj.createdAt = new Date().toISOString();
+    a.push(obj);
+    this.set(k, a);
+    return obj;
+  },
+
+  update(k, id, obj){
+    const a = this.get(k);
+    const i = a.findIndex(x=>x.id===id);
+    if(i>=0){ a[i]={...a[i],...obj,id,updatedAt:new Date().toISOString()}; this.set(k,a); return a[i]; }
+    return null;
+  },
+
+  delete(k, id){
+    this.set(k, this.get(k).filter(x=>x.id!==id));
+  },
+
+  find(k, id){ return this.get(k).find(x=>x.id===id); }
+};
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+const Utils = {
+  fmtDate(d){ if(!d) return '—'; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); },
+  fmtAmt(n){ if(n===null||n===undefined||n===''||isNaN(+n)) return '—'; return '₹'+new Intl.NumberFormat('en-IN').format(Math.round(+n)); },
+  daysUntil(d){ if(!d) return null; return Math.floor((new Date(d+'T00:00:00')-new Date())/(864e5)); },
+  addMonths(d,m){ if(!d) return ''; const dt=new Date(d+'T00:00:00'); dt.setMonth(dt.getMonth()+m); return dt.toISOString().split('T')[0]; },
+  clientName(id){ const c=DB.find('clients',id); return c?c.name:'Unknown'; },
+  clientGstin(id){ const c=DB.find('clients',id); return c?c.gstin:''; },
+  noticeRef(id){ const n=DB.find('notices',id); return n?n.refNo:'—'; },
+  noticeClient(id){ const n=DB.find('notices',id); return n?Utils.clientName(n.clientId):'—'; },
+  escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); },
+  statusBadge(s){
+    const m={
+      'Pending Reply':'<span class="badge badge-pending">&#9679; Pending Reply</span>',
+      'Replied':'<span class="badge" style="background:#dbeafe;color:#1d4ed8">&#10003; Replied</span>',
+      'Order Received':'<span class="badge badge-order">&#9654; Order Received</span>',
+      'Closed':'<span class="badge badge-closed">&#10003; Closed</span>',
+      'Withdrawn':'<span class="badge" style="background:#f1f5f9;color:#64748b">Withdrawn</span>'
+    };
+    return m[s]||`<span class="badge">${s||''}</span>`;
+  },
+  appealStatusBadge(s){
+    const m={
+      'Filed':'<span class="badge badge-filed">&#9654; Filed</span>',
+      'Pending Hearing':'<span class="badge badge-pending">Pending Hearing</span>',
+      'Decided':'<span class="badge badge-decided">&#10003; Decided</span>'
+    };
+    return m[s]||`<span class="badge">${s||''}</span>`;
+  },
+  paymentBadge(s){
+    const m={
+      'Paid':'<span class="badge badge-paid">&#10003; Paid</span>',
+      'Not Paid':'<span class="badge badge-notpaid">Not Paid</span>',
+      'Stay Granted':'<span class="badge badge-stay">Stay Granted</span>',
+      'Partially Paid':'<span class="badge badge-warn" style="background:#fef3c7;color:#92400e">Partial</span>'
+    };
+    return m[s]||`<span class="badge">${s||''}</span>`;
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+// SORT STATE
+// ═══════════════════════════════════════════════════════════
+const sortState = {};
+function sortTable(mod,key){
+  if(!sortState[mod]) sortState[mod]={key,dir:1};
+  else if(sortState[mod].key===key) sortState[mod].dir*=-1;
+  else { sortState[mod].key=key; sortState[mod].dir=1; }
+  const fn = {clients:renderClients,notices:renderNotices,replies:renderReplies,orders:renderOrders,appeals:renderAppeals};
+  if(fn[mod]) fn[mod]();
+}
+function applySortFilter(arr,mod){
+  if(!sortState[mod]) return arr;
+  const {key,dir}=sortState[mod];
+  return [...arr].sort((a,b)=>{
+    let av=a[key]||'', bv=b[key]||'';
+    if(typeof av==='string') av=av.toLowerCase(), bv=bv.toLowerCase();
+    return (av<bv?-1:av>bv?1:0)*dir;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════════════════
+const pageInfo = {
+  dashboard:{title:'Dashboard',sub:''},
+  alerts:{title:'Alerts & Compliance',sub:'Deadlines and overdue actions'},
+  clients:{title:'Client Master',sub:'Manage client GST registrations'},
+  notices:{title:'Notice Tracker',sub:'All GST notices across clients'},
+  replies:{title:'Reply Tracking',sub:'Filed replies and acknowledgements'},
+  orders:{title:'Order Tracking',sub:'Adjudication orders and demands'},
+  appeals:{title:'Appeal Tracker',sub:'First appeals and tribunal matters'},
+  timeline:{title:'Case Timeline',sub:'Lifecycle view of each matter'}
+};
+function nav(sec){
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.getElementById('nav-'+sec).classList.add('active');
+  const p=pageInfo[sec]||{};
+  document.getElementById('page-title').textContent=p.title||sec;
+  document.getElementById('page-sub').textContent=p.sub||'';
+  const renders={dashboard:renderDashboard,alerts:renderAlerts,clients:renderClients,notices:renderNotices,replies:renderReplies,orders:renderOrders,appeals:renderAppeals,timeline:renderTimeline};
+  if(renders[sec]) renders[sec]();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+function toast(msg,type='default'){
+  const el=document.createElement('div');
+  el.className='toast-item'+(type!=='default'?' '+type:'');
+  const icons={success:'&#10003;',danger:'&#9888;',warn:'&#9888;'};
+  el.innerHTML=(icons[type]?`<span>${icons[type]}</span>`:'')+'<span>'+msg+'</span>';
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.style.opacity='0',2800);
+  setTimeout(()=>el.remove(),3100);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════
+function openModal(title,bodyHtml,footerHtml){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=bodyHtml;
+  document.getElementById('modal-footer').innerHTML=footerHtml;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+
+// ═══════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════
+function renderDashboard(){
+  const notices=DB.get('notices');
+  const appeals=DB.get('appeals');
+  const orders=DB.get('orders');
+  const clients=DB.get('clients');
+  const cFilter=document.getElementById('dash-client-filter')?.value||'';
+
+  // Populate client filter dropdown
+  const dcf=document.getElementById('dash-client-filter');
+  if(dcf){
+    const cur=dcf.value;
+    dcf.innerHTML='<option value="">All Clients</option>'+clients.map(c=>`<option value="${c.id}">${Utils.escHtml(c.name)}</option>`).join('');
+    dcf.value=cur;
+  }
+
+  const fn = cFilter?notices.filter(n=>n.clientId===cFilter):notices;
+  const fa = cFilter?appeals.filter(a=>{const n=DB.find('notices',a.noticeId);return n&&n.clientId===cFilter;}):appeals;
+  // Only count orders that have a valid linked notice (avoids stale/orphaned records)
+  const validOrders = orders.filter(o=>DB.find('notices',o.noticeId));
+  const fo = cFilter?validOrders.filter(o=>{const n=DB.find('notices',o.noticeId);return n&&n.clientId===cFilter;}):validOrders;
+
+  const pending=fn.filter(n=>n.status==='Pending Reply').length;
+  const overdue=fn.filter(n=>n.status==='Pending Reply'&&Utils.daysUntil(n.replyDueDate)<0).length;
+  const ordersCount=fo.length;
+  const appealsActive=fa.filter(a=>a.status!=='Decided').length;
+  const totalDemand=fo.reduce((s,o)=>s+(+o.demandConfirmed||0),0);
+
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi blue"><div class="kpi-label">Total Notices</div><div class="kpi-val">${fn.length}</div><div class="kpi-sub">${clients.length} clients</div><div class="kpi-icon">&#128196;</div></div>
+    <div class="kpi red"><div class="kpi-label">Replies Due</div><div class="kpi-val">${pending}</div><div class="kpi-sub" style="color:var(--danger)">${overdue} overdue</div><div class="kpi-icon">&#9888;</div></div>
+    <div class="kpi amber"><div class="kpi-label">Orders Received</div><div class="kpi-val">${ordersCount}</div><div class="kpi-sub">Demand: ${Utils.fmtAmt(totalDemand)}</div><div class="kpi-icon">&#128203;</div></div>
+    <div class="kpi purple"><div class="kpi-label">Active Appeals</div><div class="kpi-val">${appealsActive}</div><div class="kpi-sub">${fa.length} total filed</div><div class="kpi-icon">&#9878;</div></div>
+  `;
+
+  // Recent notices
+  const recent=[...fn].sort((a,b)=>b.createdAt>a.createdAt?1:-1).slice(0,6);
+  const colors={['Pending Reply']:'var(--warn)',['Replied']:'var(--primary)',['Order Received']:'var(--purple)',['Closed']:'var(--success)'};
+  document.getElementById('dash-recent').innerHTML=recent.length?recent.map(n=>`
+    <div class="recent-item">
+      <div class="ri-dot" style="background:${colors[n.status]||'var(--hint)'}"></div>
+      <div class="ri-content">
+        <div class="ri-title">${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)}</div>
+        <div class="ri-meta">${Utils.escHtml(n.refNo||'—')} &bull; ${n.section||'—'} &bull; Due: ${Utils.fmtDate(n.replyDueDate)}</div>
+      </div>
+      <div class="ri-badge">${Utils.statusBadge(n.status)}</div>
+    </div>`).join(''):`<div class="empty-state"><div class="es-sub">No notices yet. Add your first notice.</div></div>`;
+
+  // Status bar chart
+  const statuses=['Pending Reply','Replied','Order Received','Closed'];
+  const sc={};
+  fn.forEach(n=>{sc[n.status]=(sc[n.status]||0)+1;});
+  const maxv=Math.max(...statuses.map(s=>sc[s]||0),1);
+  const barColors={'Pending Reply':'var(--warn)','Replied':'var(--primary)','Order Received':'var(--purple)','Closed':'var(--success)'};
+  document.getElementById('dash-chart').innerHTML=`<div class="stat-bar-wrap">`+statuses.map(s=>`
+    <div class="stat-bar-item">
+      <div class="stat-bar-label" style="font-size:11px;color:var(--muted)">${s}</div>
+      <div class="stat-bar"><div class="stat-bar-fill" style="width:${Math.round(((sc[s]||0)/maxv)*100)}%;background:${barColors[s]}"></div></div>
+      <div class="stat-bar-val">${sc[s]||0}</div>
+    </div>`).join('')+'</div>';
+
+  // Upcoming deadlines
+  const now=new Date();
+  const upcoming=fn.filter(n=>n.status==='Pending Reply'&&n.replyDueDate).map(n=>({...n,days:Utils.daysUntil(n.replyDueDate)})).filter(n=>n.days<=30).sort((a,b)=>a.days-b.days).slice(0,8);
+  document.getElementById('dash-deadlines').innerHTML=upcoming.length?`
+    <div class="tbl-wrap"><table><thead><tr><th>Client</th><th>Notice Type</th><th>Ref No</th><th>Reply Due</th><th>Days Left</th><th>Amount (₹)</th></tr></thead><tbody>`+
+    upcoming.map(n=>`<tr class="${n.days<0?'overdue':n.days<=7?'due-soon':''}">
+      <td>${Utils.escHtml(Utils.clientName(n.clientId))}</td>
+      <td>${Utils.escHtml(n.noticeType)}</td>
+      <td class="td-mono">${Utils.escHtml(n.refNo||'—')}</td>
+      <td>${Utils.fmtDate(n.replyDueDate)}</td>
+      <td>${n.days<0?`<span class="text-danger font-mono" style="font-weight:700">OVERDUE ${Math.abs(n.days)}d</span>`:`<span class="${n.days<=7?'text-danger':'text-warn'}" style="font-weight:600">${n.days}d</span>`}</td>
+      <td class="td-amount">${Utils.fmtAmt((+n.taxAmt||0)+(+n.interestAmt||0)+(+n.penaltyAmt||0))}</td>
+    </tr>`).join('')+'</tbody></table></div>'
+  :`<div class="empty-state"><div class="es-sub">No upcoming deadlines in next 30 days.</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════════════════════════
+function getAlerts(){
+  const alerts=[];
+  const notices=DB.get('notices');
+  const orders=DB.get('orders');
+  const appeals=DB.get('appeals');
+
+  notices.filter(n=>n.status==='Pending Reply'&&n.replyDueDate).forEach(n=>{
+    const d=Utils.daysUntil(n.replyDueDate);
+    if(d<0) alerts.push({type:'red',icon:'&#9888;',title:`OVERDUE — ${Utils.clientName(n.clientId)}: ${n.noticeType}`,desc:`Reply was due on ${Utils.fmtDate(n.replyDueDate)} (${Math.abs(d)} days ago)`,meta:[n.refNo||'',n.section||''],days:d});
+    else if(d<=7) alerts.push({type:'red',icon:'&#9201;',title:`Reply due in ${d} day(s) — ${Utils.clientName(n.clientId)}: ${n.noticeType}`,desc:`Reply due date: ${Utils.fmtDate(n.replyDueDate)}`,meta:[n.refNo||'',n.section||''],days:d});
+    else if(d<=30) alerts.push({type:'amber',icon:'&#9679;',title:`Reply due in ${d} days — ${Utils.clientName(n.clientId)}: ${n.noticeType}`,desc:`Reply due date: ${Utils.fmtDate(n.replyDueDate)}`,meta:[n.refNo||'',n.section||''],days:d});
+  });
+
+  // Appeal limitation: 3 months from order date
+  orders.forEach(o=>{
+    const hasAppeal=DB.get('appeals').some(a=>a.orderId===o.id);
+    if(!hasAppeal&&o.orderDate){
+      const deadline=Utils.addMonths(o.orderDate,3);
+      const d=Utils.daysUntil(deadline);
+      if(d<=30&&d>=-7){
+        const n=DB.find('notices',o.noticeId);
+        alerts.push({type:d<0?'red':d<=14?'red':'amber',icon:'&#9878;',title:`Appeal limitation ${d<0?'EXPIRED':'expiring in '+d+' days'} — ${n?Utils.clientName(n.clientId):''}`,desc:`3-month appeal deadline: ${Utils.fmtDate(deadline)} | Order: ${Utils.fmtDate(o.orderDate)}`,meta:[o.orderType||'','Sec 107'],days:d});
+      }
+    }
+  });
+
+  // Hearing dates
+  appeals.filter(a=>a.nextHearingDate&&a.status!=='Decided').forEach(a=>{
+    const d=Utils.daysUntil(a.nextHearingDate);
+    const n=DB.find('notices',a.noticeId);
+    if(d>=0&&d<=14) alerts.push({type:d<=3?'red':'amber',icon:'&#128202;',title:`Hearing in ${d} day(s) — ${n?Utils.clientName(n.clientId):''}`,desc:`${a.appealType} | Next hearing: ${Utils.fmtDate(a.nextHearingDate)}`,meta:[n?n.refNo||'':'',''],days:d});
+  });
+
+  alerts.sort((a,b)=>a.days-b.days);
+  return alerts;
+}
+
+function renderAlerts(){
+  const alerts=getAlerts();
+  const badge=document.getElementById('alert-badge');
+  if(alerts.length){badge.style.display='inline';badge.textContent=alerts.length;}
+  else badge.style.display='none';
+
+  const el=document.getElementById('alert-list');
+  if(!alerts.length){el.innerHTML='<div class="empty-state"><div class="es-icon">&#10003;</div><div class="es-title">All clear</div><div class="es-sub">No overdue actions or upcoming deadlines.</div></div>';return;}
+  el.innerHTML=alerts.map(a=>`
+    <div class="alert-item ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div style="flex:1">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+        <div class="alert-meta">${a.meta.filter(Boolean).map(m=>`<span>${Utils.escHtml(m)}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLIENTS
+// ═══════════════════════════════════════════════════════════
+function renderClients(){
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  let rows=DB.get('clients').filter(c=>!q||(c.name+c.gstin+c.state+c.contactPerson).toLowerCase().includes(q));
+  rows=applySortFilter(rows,'clients');
+  document.getElementById('client-count').textContent=`${rows.length} clients`;
+  const notices=DB.get('notices');
+  document.getElementById('client-tbody').innerHTML=rows.length?rows.map(c=>{
+    const nCount=notices.filter(n=>n.clientId===c.id).length;
+    return `<tr class="data-row">
+      <td><strong>${Utils.escHtml(c.name)}</strong></td>
+      <td class="td-mono">${Utils.escHtml(c.gstin)}</td>
+      <td>${Utils.escHtml(c.state)}</td>
+      <td>${Utils.escHtml(c.contactPerson||'—')}</td>
+      <td><span class="badge" style="background:var(--primary-lt);color:var(--primary)">${nCount} notice${nCount!==1?'s':''}</span></td>
+      <td>
+        <button class="btn btn-outline btn-xs" onclick="openClientModal('${c.id}')">Edit</button>
+        <button class="btn btn-xs" style="background:var(--danger-lt);color:var(--danger);border:none;margin-left:4px" onclick="deleteRecord('clients','${c.id}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="es-title">No clients yet</div><div class="es-sub">Add your first client to get started.</div></div></td></tr>`;
+}
+
+function openClientModal(id){
+  const c=id?DB.find('clients',id):{};
+  const title=id?'Edit Client':'Add Client';
+  const body=`<div class="form-grid">
+    <div class="fg span2"><label>Client / Firm Name *</label><input id="c-name" value="${Utils.escHtml(c.name||'')}"></div>
+    <div class="fg"><label>GSTIN *</label><input id="c-gstin" value="${Utils.escHtml(c.gstin||'')}" style="text-transform:uppercase"></div>
+    <div class="fg"><label>State</label><input id="c-state" value="${Utils.escHtml(c.state||'')}"></div>
+    <div class="fg"><label>Contact Person</label><input id="c-contact" value="${Utils.escHtml(c.contactPerson||'')}"></div>
+    <div class="fg"><label>Email</label><input type="email" id="c-email" value="${Utils.escHtml(c.email||'')}"></div>
+    <div class="fg span2"><label>Notes</label><textarea id="c-notes">${Utils.escHtml(c.notes||'')}</textarea></div>
+  </div>`;
+  const footer=`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveClient('${id||''}')">Save Client</button>`;
+  openModal(title,body,footer);
+}
+
+function saveClient(id){
+  const name=document.getElementById('c-name').value.trim();
+  const gstin=document.getElementById('c-gstin').value.trim().toUpperCase();
+  if(!name||!gstin){toast('Name and GSTIN are required','danger');return;}
+  const obj={name,gstin,state:document.getElementById('c-state').value.trim(),contactPerson:document.getElementById('c-contact').value.trim(),email:document.getElementById('c-email').value.trim(),notes:document.getElementById('c-notes').value.trim()};
+  if(id){DB.update('clients',id,obj);toast('Client updated','success');}
+  else{DB.create('clients',obj);toast('Client added','success');}
+  closeModal();renderClients();populateClientDropdowns();
+}
+
+// ═══════════════════════════════════════════════════════════
+// NOTICES
+// ═══════════════════════════════════════════════════════════
+function renderNotices(){
+  const q=(document.getElementById('notice-search')?.value||'').toLowerCase();
+  const fc=document.getElementById('notice-filter-client')?.value||'';
+  const fs=document.getElementById('notice-filter-status')?.value||'';
+  const fsec=document.getElementById('notice-filter-section')?.value||'';
+  const fo=document.getElementById('notice-filter-overdue')?.checked;
+  let rows=DB.get('notices').filter(n=>{
+    if(fc&&n.clientId!==fc)return false;
+    if(fs&&n.status!==fs)return false;
+    if(fsec&&n.section!==fsec)return false;
+    if(fo&&!(n.status==='Pending Reply'&&Utils.daysUntil(n.replyDueDate)<0))return false;
+    if(q&&!(Utils.clientName(n.clientId)+n.noticeType+n.refNo+n.section+n.taxPeriod).toLowerCase().includes(q))return false;
+    return true;
+  });
+  rows=applySortFilter(rows,'notices');
+  document.getElementById('notice-count').textContent=`${rows.length} notices`;
+  document.getElementById('notice-tbody').innerHTML=rows.length?rows.map(n=>{
+    const d=Utils.daysUntil(n.replyDueDate);
+    const isOverdue=n.status==='Pending Reply'&&d!==null&&d<0;
+    const isDueSoon=n.status==='Pending Reply'&&d!==null&&d>=0&&d<=7;
+    const total=(+n.taxAmt||0)+(+n.interestAmt||0)+(+n.penaltyAmt||0);
+    return `<tr class="data-row${isOverdue?' overdue':isDueSoon?' due-soon':''}">
+      <td><strong>${Utils.escHtml(Utils.clientName(n.clientId))}</strong>${n.isHighRisk?'<br><span class="badge badge-s74" style="margin-top:3px">SEC 74</span>':''}</td>
+      <td><span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span></td>
+      <td><span class="tag">${Utils.escHtml(n.section||'—')}</span></td>
+      <td class="td-mono" style="font-size:12px">${Utils.escHtml(n.caseId||'—')}</td>
+      <td class="td-mono" style="font-size:12px">${Utils.escHtml(n.refNo||'—')}</td>
+      <td class="td-muted">${Utils.fmtDate(n.dateOfIssue)}</td>
+      <td>${n.replyDueDate?`<span style="${isOverdue?'color:var(--danger);font-weight:700':isDueSoon?'color:var(--warn);font-weight:600':''}">${Utils.fmtDate(n.replyDueDate)}</span>`:' — '}</td>
+      <td class="td-muted">${Utils.escHtml(n.taxPeriod||'—')}</td>
+      <td class="td-amount">${Utils.fmtAmt(total)}</td>
+      <td>${Utils.statusBadge(n.status)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-outline btn-xs" onclick="viewNotice('${n.id}')">View</button>
+        <button class="btn btn-outline btn-xs" style="margin-left:4px" onclick="openNoticeModal('${n.id}')">Edit</button>
+        <button class="btn btn-xs" style="background:var(--success-lt);color:var(--success);border:none;margin-left:4px" onclick="openReplyModal(null,'${n.id}')">Reply</button>
+        <button class="btn btn-xs" style="background:var(--danger-lt);color:var(--danger);border:none;margin-left:4px" onclick="deleteRecord('notices','${n.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="11"><div class="empty-state"><div class="es-title">No notices found</div></div></td></tr>`;
+}
+
+function openNoticeModal(id){
+  const n=id?DB.find('notices',id):{};
+  const clients=DB.get('clients');
+  const body=`
+  <div class="form-grid g3">
+    <div class="fg"><label>Client *</label>
+      <select id="n-client">
+        <option value="">Select client…</option>
+        ${clients.map(c=>`<option value="${c.id}"${n.clientId===c.id?' selected':''}>${Utils.escHtml(c.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label>Notice Type *</label>
+      <select id="n-type">
+        ${['DRC-01','DRC-01A','DRC-01B','DRC-01C','ASMT-10','ADT-01','ADT-02','SCN','CMP-05','REG-17','Others'].map(t=>`<option${n.noticeType===t?' selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label>Section</label>
+      <select id="n-section">
+        ${['','Sec 61','Sec 65','Sec 66','Sec 73','Sec 74','Sec 75','Others'].map(s=>`<option value="${s}"${n.section===s?' selected':''}>${s||'—'}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg span2"><label>Case ID</label><input id="n-caseid" value="${Utils.escHtml(n.caseId||'')}" placeholder="e.g. AD2904250523137"></div>
+    <div class="fg span2"><label>Notice Reference No.</label><input id="n-ref" value="${Utils.escHtml(n.refNo||'')}"></div>
+    <div class="fg"><label>Tax Period</label><input id="n-period" value="${Utils.escHtml(n.taxPeriod||'')}" placeholder="e.g. 2022-23"></div>
+    <div class="fg"><label>Date of Issue</label><input type="date" id="n-issue" value="${n.dateOfIssue||''}"></div>
+    <div class="fg"><label>Reply Due Date</label><input type="date" id="n-due" value="${n.replyDueDate||''}"></div>
+    <div class="fg"><label>Status</label>
+      <select id="n-status">
+        ${['Pending Reply','Replied','Order Received','Closed','Withdrawn'].map(s=>`<option${n.status===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-section-title">Amount Involved</div>
+    <div class="fg"><label>Tax (₹)</label><input type="number" id="n-tax" value="${n.taxAmt||''}" min="0" oninput="calcNoticeTotal()"></div>
+    <div class="fg"><label>Interest (₹)</label><input type="number" id="n-int" value="${n.interestAmt||''}" min="0" oninput="calcNoticeTotal()"></div>
+    <div class="fg"><label>Penalty (₹)</label><input type="number" id="n-pen" value="${n.penaltyAmt||''}" min="0" oninput="calcNoticeTotal()"></div>
+    <div class="fg"><label>Total (₹)</label><input id="n-total" readonly style="background:var(--bg);font-weight:600;color:var(--primary);cursor:default"></div>
+    <div class="fg span2"><label>Notes</label><textarea id="n-notes">${Utils.escHtml(n.notes||'')}</textarea></div>
+    <div class="fg" style="justify-content:flex-end;padding-top:20px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="n-highrisk"${n.isHighRisk?' checked':''}>
+        <span style="font-size:13px;color:var(--text)">High Risk (Sec 74 / Fraud)</span>
+      </label>
+    </div>
+  </div>`;
+  const footer=`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveNotice('${id||''}')">Save Notice</button>`;
+  openModal(id?'Edit Notice':'Add Notice',body,footer);
+  setTimeout(calcNoticeTotal,50);
+}
+
+function saveNotice(id){
+  const clientId=document.getElementById('n-client').value;
+  const noticeType=document.getElementById('n-type').value;
+  if(!clientId||!noticeType){toast('Client and Notice Type are required','danger');return;}
+  const obj={clientId,noticeType,section:document.getElementById('n-section').value,caseId:document.getElementById('n-caseid').value.trim(),refNo:document.getElementById('n-ref').value.trim(),taxPeriod:document.getElementById('n-period').value.trim(),dateOfIssue:document.getElementById('n-issue').value,replyDueDate:document.getElementById('n-due').value,status:document.getElementById('n-status').value,taxAmt:document.getElementById('n-tax').value,interestAmt:document.getElementById('n-int').value,penaltyAmt:document.getElementById('n-pen').value,notes:document.getElementById('n-notes').value.trim(),isHighRisk:document.getElementById('n-highrisk').checked};
+  if(id){DB.update('notices',id,obj);toast('Notice updated','success');}
+  else{DB.create('notices',obj);toast('Notice added','success');}
+  closeModal();renderNotices();
+}
+
+function calcNoticeTotal(){
+  const t=parseFloat(document.getElementById('n-tax')?.value)||0;
+  const i=parseFloat(document.getElementById('n-int')?.value)||0;
+  const p=parseFloat(document.getElementById('n-pen')?.value)||0;
+  const el=document.getElementById('n-total');
+  if(el) el.value=new Intl.NumberFormat('en-IN').format(t+i+p);
+}
+
+function viewNotice(id){
+  const n=DB.find('notices',id);
+  if(!n)return;
+  const client=DB.find('clients',n.clientId);
+  const total=(+n.taxAmt||0)+(+n.interestAmt||0)+(+n.penaltyAmt||0);
+  const replies=DB.get('replies').filter(r=>r.noticeId===id);
+  const orders=DB.get('orders').filter(o=>o.noticeId===id);
+  const body=`
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+    <div style="grid-column:span 3;background:var(--bg);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      ${Utils.statusBadge(n.status)}
+      ${n.isHighRisk?'<span class="badge badge-s74">HIGH RISK — SEC 74</span>':''}
+      <span class="td-muted" style="margin-left:auto;font-size:12px">ID: ${Utils.escHtml(id)}</span>
+    </div>
+    <div class="detail-section"><div class="detail-label">Client</div><div class="detail-value" style="font-weight:600">${Utils.escHtml(client?client.name:'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">GSTIN</div><div class="detail-value font-mono">${Utils.escHtml(client?client.gstin:'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">State</div><div class="detail-value">${Utils.escHtml(client?client.state:'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">Notice Type</div><div class="detail-value"><span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span></div></div>
+    <div class="detail-section"><div class="detail-label">Section</div><div class="detail-value"><span class="tag">${Utils.escHtml(n.section||'—')}</span></div></div>
+    <div class="detail-section"><div class="detail-label">Tax Period</div><div class="detail-value">${Utils.escHtml(n.taxPeriod||'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">Case ID</div><div class="detail-value font-mono">${Utils.escHtml(n.caseId||'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">Notice Ref No.</div><div class="detail-value font-mono">${Utils.escHtml(n.refNo||'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">Date of Issue</div><div class="detail-value">${Utils.fmtDate(n.dateOfIssue)}</div></div>
+    <div class="detail-section"><div class="detail-label">Reply Due Date</div><div class="detail-value" style="${Utils.daysUntil(n.replyDueDate)<0&&n.status==='Pending Reply'?'color:var(--danger);font-weight:600':''}">${Utils.fmtDate(n.replyDueDate)}</div></div>
+    <div class="detail-section"><div class="detail-label">Replies Filed</div><div class="detail-value">${replies.length?replies.length+' reply filed':'None'}</div></div>
+    <div class="detail-section"><div class="detail-label">Orders</div><div class="detail-value">${orders.length?orders.length+' order recorded':'None'}</div></div>
+    <div style="grid-column:span 3;height:1px;background:var(--border);margin:4px 0"></div>
+    <div class="detail-section"><div class="detail-label">Tax (₹)</div><div class="detail-value td-amount">${Utils.fmtAmt(n.taxAmt)}</div></div>
+    <div class="detail-section"><div class="detail-label">Interest (₹)</div><div class="detail-value td-amount">${Utils.fmtAmt(n.interestAmt)}</div></div>
+    <div class="detail-section"><div class="detail-label">Penalty (₹)</div><div class="detail-value td-amount">${Utils.fmtAmt(n.penaltyAmt)}</div></div>
+    <div class="detail-section" style="grid-column:span 3;background:var(--primary-lt);border-radius:var(--radius);padding:10px 14px">
+      <div class="detail-label">Total Amount (₹)</div>
+      <div class="detail-value" style="font-size:20px;font-weight:700;color:var(--primary)">${Utils.fmtAmt(total)}</div>
+    </div>
+    ${n.notes?`<div class="detail-section" style="grid-column:span 3"><div class="detail-label">Notes</div><div class="detail-value">${Utils.escHtml(n.notes)}</div></div>`:''}
+  </div>`;
+  const footer=`
+    <button class="btn btn-outline" onclick="closeModal()">Close</button>
+    <button class="btn btn-primary" onclick="closeModal();openNoticeModal('${id}')">Edit Notice</button>
+    <button class="btn btn-success" onclick="closeModal();openReplyModal(null,'${id}')">Log Reply</button>`;
+  openModal('Notice Details',body,footer);
+}
+
+// ═══════════════════════════════════════════════════════════
+// REPLIES
+// ═══════════════════════════════════════════════════════════
+function renderReplies(){
+  const q=(document.getElementById('reply-search')?.value||'').toLowerCase();
+  const fc=document.getElementById('reply-filter-client')?.value||'';
+  let rows=DB.get('replies').filter(r=>{
+    const n=DB.find('notices',r.noticeId);
+    if(!n)return false;
+    if(fc&&n.clientId!==fc)return false;
+    if(q&&!(Utils.clientName(n.clientId)+n.refNo+r.ackNo+r.remarks).toLowerCase().includes(q))return false;
+    return true;
+  });
+  rows=applySortFilter(rows,'replies');
+  document.getElementById('reply-count').textContent=`${rows.length} replies`;
+  document.getElementById('reply-tbody').innerHTML=rows.length?rows.map(r=>{
+    const n=DB.find('notices',r.noticeId);
+    return `<tr class="data-row">
+      <td>${Utils.escHtml(n?Utils.clientName(n.clientId):'—')}</td>
+      <td class="td-mono">${Utils.escHtml(n?n.refNo||'—':'—')}</td>
+      <td>${n?`<span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span>`:''}</td>
+      <td>${Utils.fmtDate(r.replyDate)}</td>
+      <td><span class="tag">${Utils.escHtml(r.mode||'—')}</span></td>
+      <td class="td-mono">${Utils.escHtml(r.ackNo||'—')}</td>
+      <td class="td-muted" style="max-width:200px">${Utils.escHtml(r.remarks||'—')}</td>
+      <td>
+        <button class="btn btn-outline btn-xs" onclick="openReplyModal('${r.id}')">Edit</button>
+        <button class="btn btn-xs" style="background:var(--danger-lt);color:var(--danger);border:none;margin-left:4px" onclick="deleteRecord('replies','${r.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="8"><div class="empty-state"><div class="es-title">No replies logged yet</div></div></td></tr>`;
+}
+
+function openReplyModal(id,preNoticeId){
+  const r=id?DB.find('replies',id):{noticeId:preNoticeId||''};
+  const notices=DB.get('notices');
+  const body=`<div class="form-grid">
+    <div class="fg span2"><label>Notice *</label>
+      <select id="r-notice">
+        <option value="">Select notice…</option>
+        ${notices.map(n=>`<option value="${n.id}"${r.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml(n.refNo||'no ref')})</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label>Reply Filed Date</label><input type="date" id="r-date" value="${r.replyDate||''}"></div>
+    <div class="fg"><label>Mode</label>
+      <select id="r-mode"><option>Online</option><option>Manual</option><option>Both</option></select>
+    </div>
+    <div class="fg span2"><label>Acknowledgement No.</label><input id="r-ack" value="${Utils.escHtml(r.ackNo||'')}"></div>
+    <div class="fg span2"><label>Remarks</label><textarea id="r-remarks">${Utils.escHtml(r.remarks||'')}</textarea></div>
+    <div class="fg span2"><label>Document Reference (PDF name or folder path)</label><input id="r-doc" value="${Utils.escHtml(r.docRef||'')}" placeholder="e.g. Reply_Notice_DRC01_2024.pdf"></div>
+  </div>`;
+  const footer=`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveReply('${id||''}')">Save Reply</button>`;
+  openModal(id?'Edit Reply':'Log Reply',body,footer);
+  if(r.mode) setTimeout(()=>{const s=document.getElementById('r-mode');if(s)s.value=r.mode;},50);
+}
+
+function saveReply(id){
+  const noticeId=document.getElementById('r-notice').value;
+  if(!noticeId){toast('Select a notice','danger');return;}
+  const obj={noticeId,replyDate:document.getElementById('r-date').value,mode:document.getElementById('r-mode').value,ackNo:document.getElementById('r-ack').value.trim(),remarks:document.getElementById('r-remarks').value.trim(),docRef:document.getElementById('r-doc').value.trim()};
+  if(id){DB.update('replies',id,obj);toast('Reply updated','success');}
+  else{
+    DB.create('replies',obj);
+    // Auto-update notice status to Replied
+    const n=DB.find('notices',noticeId);
+    if(n&&n.status==='Pending Reply') DB.update('notices',noticeId,{status:'Replied'});
+    toast('Reply logged','success');
+  }
+  closeModal();renderReplies();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════════════════
+function renderOrders(){
+  const q=(document.getElementById('order-search')?.value||'').toLowerCase();
+  const fc=document.getElementById('order-filter-client')?.value||'';
+  const fp=document.getElementById('order-filter-payment')?.value||'';
+  let rows=DB.get('orders').filter(o=>{
+    const n=DB.find('notices',o.noticeId);
+    if(!n)return false;
+    if(fc&&n.clientId!==fc)return false;
+    if(fp&&o.paymentStatus!==fp)return false;
+    if(q&&!(Utils.clientName(n.clientId)+n.refNo+o.orderType).toLowerCase().includes(q))return false;
+    return true;
+  });
+  rows=applySortFilter(rows,'orders');
+  document.getElementById('order-count').textContent=`${rows.length} orders`;
+  document.getElementById('order-tbody').innerHTML=rows.length?rows.map(o=>{
+    const n=DB.find('notices',o.noticeId);
+    const appealDeadline=Utils.addMonths(o.orderDate,3);
+    const ad=Utils.daysUntil(appealDeadline);
+    const hasAppeal=DB.get('appeals').some(a=>a.orderId===o.id);
+    return `<tr class="data-row">
+      <td>${Utils.escHtml(n?Utils.clientName(n.clientId):'—')}</td>
+      <td class="td-mono">${Utils.escHtml(n?n.refNo||'—':'—')}</td>
+      <td><span class="badge badge-order-type">${Utils.escHtml(o.orderType||'—')}</span></td>
+      <td>${Utils.fmtDate(o.orderDate)}</td>
+      <td class="td-amount">${Utils.fmtAmt(o.demandConfirmed)}</td>
+      <td class="td-amount">${Utils.fmtAmt(o.demandDropped)}</td>
+      <td class="td-amount">${Utils.fmtAmt(o.refund)}</td>
+      <td>${Utils.paymentBadge(o.paymentStatus)}</td>
+      <td>${appealDeadline?`<span style="${ad<0?'color:var(--danger)':ad<=30?'color:var(--warn)':''}" title="3 months from order">${Utils.fmtDate(appealDeadline)}${ad<0?' (LAPSED)':ad<=30?' ('+ad+'d)':''}</span>`:'—'}
+        ${!hasAppeal&&ad>=0?`<br><button class="btn btn-xs" style="background:var(--purple-lt);color:var(--purple);border:none;margin-top:3px" onclick="openAppealModal(null,'${o.id}')">File Appeal</button>`:hasAppeal?'<br><span class="badge badge-filed" style="margin-top:3px">Appeal Filed</span>':''}
+      </td>
+      <td>
+        <button class="btn btn-outline btn-xs" onclick="openOrderModal('${o.id}')">Edit</button>
+        <button class="btn btn-xs" style="background:var(--danger-lt);color:var(--danger);border:none;margin-left:4px" onclick="deleteRecord('orders','${o.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="10"><div class="empty-state"><div class="es-title">No orders recorded yet</div></div></td></tr>`;
+}
+
+function openOrderModal(id,preOrderId){
+  const o=id?DB.find('orders',id):{};
+  const notices=DB.get('notices');
+  const body=`<div class="form-grid">
+    <div class="fg span2"><label>Notice *</label>
+      <select id="o-notice">
+        <option value="">Select notice…</option>
+        ${notices.map(n=>`<option value="${n.id}"${o.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml(n.refNo||'no ref')})</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label>Order Type</label>
+      <select id="o-type"><option>OIO</option><option>OIA</option></select>
+    </div>
+    <div class="fg"><label>Order Date</label><input type="date" id="o-date" value="${o.orderDate||''}"></div>
+    <div class="form-section-title">Financial Summary</div>
+    <div class="fg"><label>Demand Confirmed (₹)</label><input type="number" id="o-confirmed" value="${o.demandConfirmed||''}" min="0"></div>
+    <div class="fg"><label>Demand Dropped (₹)</label><input type="number" id="o-dropped" value="${o.demandDropped||''}" min="0"></div>
+    <div class="fg"><label>Refund (₹)</label><input type="number" id="o-refund" value="${o.refund||''}" min="0"></div>
+    <div class="fg"><label>Payment Status</label>
+      <select id="o-payment">
+        ${['Not Paid','Paid','Stay Granted','Partially Paid'].map(s=>`<option${o.paymentStatus===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg span2"><label>Notes</label><textarea id="o-notes">${Utils.escHtml(o.notes||'')}</textarea></div>
+  </div>`;
+  const footer=`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveOrder('${id||''}')">Save Order</button>`;
+  openModal(id?'Edit Order':'Record Order',body,footer);
+  if(o.orderType) setTimeout(()=>{const s=document.getElementById('o-type');if(s)s.value=o.orderType;},50);
+}
+
+function saveOrder(id){
+  const noticeId=document.getElementById('o-notice').value;
+  if(!noticeId){toast('Select a notice','danger');return;}
+  const obj={noticeId,orderType:document.getElementById('o-type').value,orderDate:document.getElementById('o-date').value,demandConfirmed:document.getElementById('o-confirmed').value,demandDropped:document.getElementById('o-dropped').value,refund:document.getElementById('o-refund').value,paymentStatus:document.getElementById('o-payment').value,notes:document.getElementById('o-notes').value.trim()};
+  if(id){DB.update('orders',id,obj);toast('Order updated','success');}
+  else{
+    DB.create('orders',obj);
+    DB.update('notices',noticeId,{status:'Order Received'});
+    toast('Order recorded','success');
+  }
+  closeModal();renderOrders();
+}
+
+// ═══════════════════════════════════════════════════════════
+// APPEALS
+// ═══════════════════════════════════════════════════════════
+function renderAppeals(){
+  const q=(document.getElementById('appeal-search')?.value||'').toLowerCase();
+  const fs=document.getElementById('appeal-filter-status')?.value||'';
+  let rows=DB.get('appeals').filter(a=>{
+    const n=DB.find('notices',a.noticeId);
+    if(fs&&a.status!==fs)return false;
+    if(q&&!(n?Utils.clientName(n.clientId)+n.refNo:'')+(a.appealType||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  rows=applySortFilter(rows,'appeals');
+  document.getElementById('appeal-count').textContent=`${rows.length} appeals`;
+  document.getElementById('appeal-tbody').innerHTML=rows.length?rows.map(a=>{
+    const n=DB.find('notices',a.noticeId);
+    const hd=Utils.daysUntil(a.nextHearingDate);
+    return `<tr class="data-row">
+      <td>${Utils.escHtml(n?Utils.clientName(n.clientId):'—')}</td>
+      <td class="td-mono">${Utils.escHtml(n?n.refNo||'—':'—')}</td>
+      <td><span class="badge badge-order-type">${Utils.escHtml(a.appealType||'—')}</span></td>
+      <td><span class="tag">${Utils.escHtml(a.section||'—')}</span></td>
+      <td>${Utils.fmtDate(a.filingDate)}</td>
+      <td class="td-amount">${Utils.fmtAmt(a.preDeposit)}</td>
+      <td>${Utils.appealStatusBadge(a.status)}</td>
+      <td>${a.nextHearingDate?`<span style="${hd!==null&&hd<=7?'color:var(--danger);font-weight:600':hd!==null&&hd<=14?'color:var(--warn)':''}">${Utils.fmtDate(a.nextHearingDate)}${hd!==null&&hd>=0&&hd<=14?` (${hd}d)`:''}</span>`:'—'}</td>
+      <td>
+        <button class="btn btn-outline btn-xs" onclick="openAppealModal('${a.id}')">Edit</button>
+        <button class="btn btn-xs" style="background:var(--danger-lt);color:var(--danger);border:none;margin-left:4px" onclick="deleteRecord('appeals','${a.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty-state"><div class="es-title">No appeals filed yet</div></div></td></tr>`;
+}
+
+function openAppealModal(id,preOrderId){
+  const a=id?DB.find('appeals',id):{orderId:preOrderId||''};
+  const orders=DB.get('orders');
+  const notices=DB.get('notices');
+  const body=`<div class="form-grid">
+    <div class="fg span2"><label>Linked Notice *</label>
+      <select id="a-notice" onchange="calcPreDeposit()">
+        <option value="">Select notice…</option>
+        ${notices.map(n=>`<option value="${n.id}"${a.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml(n.refNo||'no ref')})</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label>Appeal Type *</label>
+      <select id="a-type" onchange="calcPreDeposit()">
+        <option>First Appeal (Sec 107)</option>
+        <option>Tribunal (Sec 112)</option>
+        <option>High Court (Writ)</option>
+      </select>
+    </div>
+    <div class="fg"><label>Section</label>
+      <select id="a-section">
+        <option>Sec 107</option><option>Sec 112</option><option>Art 226</option>
+      </select>
+    </div>
+    <div class="fg"><label>Filing Date</label><input type="date" id="a-filed" value="${a.filingDate||''}"></div>
+    <div class="fg"><label>Pre-deposit (₹) <span id="pd-note" class="calc-note">10% of confirmed demand</span></label>
+      <input type="number" id="a-deposit" value="${a.preDeposit||''}" min="0">
+    </div>
+    <div class="fg"><label>Status</label>
+      <select id="a-status">
+        ${['Filed','Pending Hearing','Decided'].map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label>Next Hearing Date</label><input type="date" id="a-hearing" value="${a.nextHearingDate||''}"></div>
+    <div class="fg span2"><label>Hearing History / Notes</label><textarea id="a-notes">${Utils.escHtml(a.notes||'')}</textarea></div>
+  </div>`;
+  const footer=`<button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveAppeal('${id||''}')">Save Appeal</button>`;
+  openModal(id?'Edit Appeal':'File Appeal',body,footer);
+  if(a.appealType) setTimeout(()=>{const s=document.getElementById('a-type');if(s){s.value=a.appealType;calcPreDeposit();}},50);
+}
+
+function calcPreDeposit(){
+  const noticeId=document.getElementById('a-notice')?.value;
+  const type=document.getElementById('a-type')?.value||'';
+  const note=document.getElementById('pd-note');
+  const inp=document.getElementById('a-deposit');
+  if(!noticeId||!note||!inp)return;
+  const order=DB.get('orders').find(o=>o.noticeId===noticeId);
+  if(order&&order.demandConfirmed){
+    const pct=type.includes('Tribunal')?0.2:0.1;
+    const amt=Math.round(+order.demandConfirmed*pct);
+    inp.value=amt;
+    note.textContent=`Auto: ${pct*100}% of ₹${new Intl.NumberFormat('en-IN').format(+order.demandConfirmed)} = ₹${new Intl.NumberFormat('en-IN').format(amt)}`;
+  } else {
+    note.textContent=type.includes('Tribunal')?'20% of confirmed demand':'10% of confirmed demand';
+  }
+}
+
+function saveAppeal(id){
+  const noticeId=document.getElementById('a-notice').value;
+  if(!noticeId){toast('Select a notice','danger');return;}
+  const obj={noticeId,orderId:document.getElementById('a-notice')?.dataset?.orderId||'',appealType:document.getElementById('a-type').value,section:document.getElementById('a-section').value,filingDate:document.getElementById('a-filed').value,preDeposit:document.getElementById('a-deposit').value,status:document.getElementById('a-status').value,nextHearingDate:document.getElementById('a-hearing').value,notes:document.getElementById('a-notes').value.trim()};
+  if(id){DB.update('appeals',id,obj);toast('Appeal updated','success');}
+  else{DB.create('appeals',obj);toast('Appeal filed','success');}
+  closeModal();renderAppeals();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TIMELINE
+// ═══════════════════════════════════════════════════════════
+function renderTimeline(){
+  const cf=document.getElementById('timeline-filter-client')?.value||'';
+  const clients=DB.get('clients');
+  // Populate filter
+  const sel=document.getElementById('timeline-filter-client');
+  if(sel){
+    const cur=sel.value;
+    sel.innerHTML='<option value="">All Clients</option>'+clients.map(c=>`<option value="${c.id}"${cf===c.id?' selected':''}>${Utils.escHtml(c.name)}</option>`).join('');
+    sel.value=cur||cf;
+  }
+  let notices=DB.get('notices');
+  if(cf) notices=notices.filter(n=>n.clientId===cf);
+  const wrap=document.getElementById('timeline-wrap');
+  if(!notices.length){wrap.innerHTML='<div class="empty-state"><div class="es-title">No notices to display</div></div>';return;}
+
+  wrap.innerHTML=notices.map(n=>{
+    const replies=DB.get('replies').filter(r=>r.noticeId===n.id);
+    const orders=DB.get('orders').filter(o=>o.noticeId===n.id);
+    const orderIds=orders.map(o=>o.id);
+    const appeals=DB.get('appeals').filter(a=>orderIds.includes(a.orderId)||a.noticeId===n.id);
+    const d=Utils.daysUntil(n.replyDueDate);
+    const isOverdue=n.status==='Pending Reply'&&d!==null&&d<0;
+
+    const steps=[
+      {label:'Notice Issued',date:n.dateOfIssue,done:true,detail:`${n.noticeType} | ${n.section||''}`,sub:n.refNo},
+      {label:'Reply Filed',date:replies[0]?.replyDate,done:replies.length>0,active:n.status==='Pending Reply'&&!isOverdue,overdue:isOverdue,detail:replies.length?`${replies.length} reply filed`:`Due: ${Utils.fmtDate(n.replyDueDate)}`,sub:replies[0]?.ackNo},
+      {label:'Order Received',date:orders[0]?.orderDate,done:orders.length>0,detail:orders.length?`${orders[0].orderType} | ${Utils.fmtAmt(orders[0].demandConfirmed)}`:''},
+      {label:'Appeal Filed',date:appeals[0]?.filingDate,done:appeals.length>0,detail:appeals.length?`${appeals[0].appealType}`:'',sub:appeals[0]?.status}
+    ];
+
+    return `<div class="timeline-notice">
+      <div class="tn-header">
+        <strong>${Utils.escHtml(Utils.clientName(n.clientId))}</strong>
+        <span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span>
+        <span class="tag">${Utils.escHtml(n.section||'—')}</span>
+        <span class="td-mono" style="font-size:11px;color:var(--muted)">${Utils.escHtml(n.refNo||'')}</span>
+        <span style="margin-left:auto">${Utils.statusBadge(n.status)}</span>
+        ${n.isHighRisk?'<span class="badge badge-s74">HIGH RISK</span>':''}
+      </div>
+      <div class="tn-steps">
+        ${steps.map((s,i)=>`
+          <div class="tn-step${s.done?' done':s.active?' active':s.overdue?' overdue':''}">
+            <div class="tn-dot-wrap"><div class="tn-dot">${i+1}</div></div>
+            <div class="tn-label">${s.label}</div>
+            <div class="tn-date">${s.date?Utils.fmtDate(s.date):s.detail||''}</div>
+            ${s.sub?`<div class="tn-date" style="font-size:10px;color:var(--hint)">${Utils.escHtml(s.sub)}</div>`:''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELETE + CSV EXPORT
+// ═══════════════════════════════════════════════════════════
+function deleteRecord(mod, id){
+  // Build confirmation message with cascade info
+  let msg = 'Delete this record? This cannot be undone.';
+  if(mod === 'clients'){
+    const noticeIds = DB.get('notices').filter(n=>n.clientId===id).map(n=>n.id);
+    const orderIds  = DB.get('orders').filter(o=>noticeIds.includes(o.noticeId)).map(o=>o.id);
+    const replyCount  = DB.get('replies').filter(r=>noticeIds.includes(r.noticeId)).length;
+    const orderCount  = orderIds.length;
+    const appealCount = DB.get('appeals').filter(a=>orderIds.includes(a.orderId)||noticeIds.includes(a.noticeId)).length;
+    if(noticeIds.length)
+      msg = `Delete this client and ALL linked records?\n\n• ${noticeIds.length} notice(s)\n• ${replyCount} reply(ies)\n• ${orderCount} order(s)\n• ${appealCount} appeal(s)\n\nThis cannot be undone.`;
+  } else if(mod === 'notices'){
+    const orderIds = DB.get('orders').filter(o=>o.noticeId===id).map(o=>o.id);
+    const replyCount  = DB.get('replies').filter(r=>r.noticeId===id).length;
+    const orderCount  = orderIds.length;
+    const appealCount = DB.get('appeals').filter(a=>orderIds.includes(a.orderId)||a.noticeId===id).length;
+    if(replyCount||orderCount||appealCount)
+      msg = `Delete this notice and ALL linked records?\n\n• ${replyCount} reply(ies)\n• ${orderCount} order(s)\n• ${appealCount} appeal(s)\n\nThis cannot be undone.`;
+  } else if(mod === 'orders'){
+    const appealCount = DB.get('appeals').filter(a=>a.orderId===id).length;
+    if(appealCount) msg = `Delete this order and its ${appealCount} linked appeal(s)?\n\nThis cannot be undone.`;
+  }
+
+  if(!confirm(msg)) return;
+
+  // Cascade delete logic
+  if(mod === 'clients'){
+    const noticeIds = DB.get('notices').filter(n=>n.clientId===id).map(n=>n.id);
+    const orderIds  = DB.get('orders').filter(o=>noticeIds.includes(o.noticeId)).map(o=>o.id);
+    DB.set('appeals', DB.get('appeals').filter(a=>!orderIds.includes(a.orderId)&&!noticeIds.includes(a.noticeId)));
+    DB.set('orders',  DB.get('orders').filter(o=>!noticeIds.includes(o.noticeId)));
+    DB.set('replies', DB.get('replies').filter(r=>!noticeIds.includes(r.noticeId)));
+    DB.set('notices', DB.get('notices').filter(n=>n.clientId!==id));
+    DB.delete('clients', id);
+    toast('Client and all linked records deleted','warn');
+    populateClientDropdowns();
+    renderClients();
+  } else if(mod === 'notices'){
+    const orderIds = DB.get('orders').filter(o=>o.noticeId===id).map(o=>o.id);
+    DB.set('appeals', DB.get('appeals').filter(a=>!orderIds.includes(a.orderId)&&a.noticeId!==id));
+    DB.set('orders',  DB.get('orders').filter(o=>o.noticeId!==id));
+    DB.set('replies', DB.get('replies').filter(r=>r.noticeId!==id));
+    DB.delete('notices', id);
+    toast('Notice and all linked records deleted','warn');
+    renderNotices();
+  } else if(mod === 'orders'){
+    DB.set('appeals', DB.get('appeals').filter(a=>a.orderId!==id));
+    DB.delete('orders', id);
+    toast('Order and linked appeals deleted','warn');
+    renderOrders();
+  } else if(mod === 'replies'){
+    DB.delete('replies', id);
+    toast('Reply deleted','warn');
+    renderReplies();
+  } else if(mod === 'appeals'){
+    DB.delete('appeals', id);
+    toast('Appeal deleted','warn');
+    renderAppeals();
+  }
+
+  // Refresh dashboard and alerts after any delete
+  renderDashboard();
+  renderAlerts();
+  const count=getAlerts().length;
+  const badge=document.getElementById('alert-badge');
+  if(badge){ badge.style.display=count?'inline':'none'; if(count) badge.textContent=count; }
+}
+
+function exportCSV(){
+  const notices=DB.get('notices');
+  if(!notices.length){toast('No notices to export','warn');return;}
+  const headers=['Client','GSTIN','Notice Type','Section','Ref No','Date Issued','Reply Due','Tax Period','Tax(₹)','Interest(₹)','Penalty(₹)','Status','High Risk'];
+  const rows=notices.map(n=>[
+    Utils.clientName(n.clientId),Utils.clientGstin(n.clientId),
+    n.noticeType,n.section,n.refNo,n.dateOfIssue,n.replyDueDate,
+    n.taxPeriod,n.taxAmt||0,n.interestAmt||0,n.penaltyAmt||0,
+    n.status,n.isHighRisk?'Yes':'No'
+  ].map(v=>`"${String(v||'').replace(/"/g,'""')}"`));
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='GST_Notices_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+  toast('CSV exported','success');
+}
+
+function globalSearch(q){
+  if(!q)return;
+  nav('notices');
+  setTimeout(()=>{
+    const el=document.getElementById('notice-search');
+    if(el){el.value=q;renderNotices();}
+  },100);
+}
+
+// ═══════════════════════════════════════════════════════════
+// POPULATE DROPDOWNS
+// ═══════════════════════════════════════════════════════════
+function populateClientDropdowns(){
+  const clients=DB.get('clients');
+  ['notice-filter-client','reply-filter-client','order-filter-client','timeline-filter-client'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const cur=el.value;
+    el.innerHTML='<option value="">All Clients</option>'+clients.map(c=>`<option value="${c.id}">${Utils.escHtml(c.name)}</option>`).join('');
+    el.value=cur;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// SEED DEMO DATA
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// INIT — Load from Firebase then start app
+// ═══════════════════════════════════════════════════════════
+function setLoadingMsg(msg){ const el=document.getElementById('loading-msg'); if(el) el.textContent=msg; }
+function hideLoading(){ const el=document.getElementById('loading-overlay'); if(el) el.style.display='none'; }
+
+function initApp(){
+  populateClientDropdowns();
+  renderDashboard();
+  renderAlerts();
+  const count=getAlerts().length;
+  const badge=document.getElementById('alert-badge');
+  if(count){badge.style.display='inline';badge.textContent=count;}
+  hideLoading();
+}
+
+window.addEventListener('DOMContentLoaded', async ()=>{
+  setLoadingMsg('Connecting to Firebase…');
+  const ok = await DB.load();
+  if(ok){
+    setLoadingMsg('Data loaded. Starting app…');
+    initApp();
+  } else {
+    hideLoading();
+    toast('Firebase connection failed — check internet and try refreshing','danger');
+  }
+});
+</script>
+</body>
+</html>
