@@ -387,6 +387,7 @@ tr.due-soon td:first-child{border-left:3px solid var(--warn)}
       </div>
       <div class="toolbar">
         <div class="toolbar-input"><input type="text" placeholder="Search notices…" id="notice-search" oninput="renderNotices()"></div>
+        <div class="toolbar-input"><input type="text" placeholder="Filter by Case ID…" id="notice-filter-caseid" oninput="renderNotices()" style="width:160px"></div>
         <div class="toolbar-input">
           <select id="notice-filter-client" onchange="renderNotices()"><option value="">All Clients</option></select>
         </div>
@@ -971,13 +972,15 @@ function renderNotices(){
   const fc=document.getElementById('notice-filter-client')?.value||'';
   const fs=document.getElementById('notice-filter-status')?.value||'';
   const fsec=document.getElementById('notice-filter-section')?.value||'';
+  const fcid=(document.getElementById('notice-filter-caseid')?.value||'').toLowerCase();
   const fo=document.getElementById('notice-filter-overdue')?.checked;
   let rows=DB.get('notices').filter(n=>{
     if(fc&&n.clientId!==fc)return false;
     if(fs&&n.status!==fs)return false;
     if(fsec&&n.section!==fsec)return false;
     if(fo&&!(n.status==='Pending Reply'&&Utils.daysUntil(n.replyDueDate)<0))return false;
-    if(q&&!(Utils.clientName(n.clientId)+n.noticeType+n.refNo+n.section+n.taxPeriod).toLowerCase().includes(q))return false;
+    if(fcid&&!(n.caseId||'').toLowerCase().includes(fcid))return false;
+    if(q&&!(Utils.clientName(n.clientId)+n.noticeType+n.refNo+(n.caseId||'')+n.section+n.taxPeriod).toLowerCase().includes(q))return false;
     return true;
   });
   rows=applySortFilter(rows,'notices');
