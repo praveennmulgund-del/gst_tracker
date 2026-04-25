@@ -446,7 +446,7 @@ tr.due-soon td:first-child{border-left:3px solid var(--warn)}
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>Client</th><th>Notice Ref</th><th>Notice Type</th>
+            <th>Client</th><th>Case ID</th><th>Notice Type</th>
             <th onclick="sortTable('replies','replyDate')">Reply Date <span class="sort-icon">&#8597;</span></th>
             <th>Mode</th><th>Ack. No.</th><th>Remarks</th><th>Actions</th>
           </tr></thead>
@@ -1131,7 +1131,7 @@ function renderReplies(){
     const n=DB.find('notices',r.noticeId);
     if(!n)return false;
     if(fc&&n.clientId!==fc)return false;
-    if(q&&!(Utils.clientName(n.clientId)+n.refNo+r.ackNo+r.remarks).toLowerCase().includes(q))return false;
+    if(q&&!(Utils.clientName(n.clientId)+(n.caseId||'')+n.refNo+r.ackNo+r.remarks).toLowerCase().includes(q))return false;
     return true;
   });
   rows=applySortFilter(rows,'replies');
@@ -1140,7 +1140,7 @@ function renderReplies(){
     const n=DB.find('notices',r.noticeId);
     return `<tr class="data-row">
       <td>${Utils.escHtml(n?Utils.clientName(n.clientId):'—')}</td>
-      <td class="td-mono">${Utils.escHtml(n?n.refNo||'—':'—')}</td>
+      <td class="td-mono">${Utils.escHtml(n?n.caseId||n.refNo||'—':'—')}</td>
       <td>${n?`<span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span>`:''}</td>
       <td>${Utils.fmtDate(r.replyDate)}</td>
       <td><span class="tag">${Utils.escHtml(r.mode||'—')}</span></td>
@@ -1161,7 +1161,7 @@ function openReplyModal(id,preNoticeId){
     <div class="fg span2"><label>Notice *</label>
       <select id="r-notice">
         <option value="">Select notice…</option>
-        ${notices.map(n=>`<option value="${n.id}"${r.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml(n.refNo||'no ref')})</option>`).join('')}
+        ${notices.map(n=>`<option value="${n.id}"${r.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml(n.caseId||n.refNo||'no case id')})</option>`).join('')}
       </select>
     </div>
     <div class="fg"><label>Reply Filed Date</label><input type="date" id="r-date" value="${r.replyDate||''}"></div>
