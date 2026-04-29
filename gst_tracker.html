@@ -500,7 +500,7 @@ tr.due-soon td:first-child{border-left:3px solid var(--warn)}
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>Client</th><th>Notice Ref</th><th>Order Type</th>
+            <th>Client</th><th>Case ID</th><th>Order Ref</th><th>Order Type</th>
             <th onclick="sortTable('orders','orderDate')">Order Date <span class="sort-icon">&#8597;</span></th>
             <th class="td-amount">Demand Conf. (₹)</th>
             <th class="td-amount">Demand Dropped (₹)</th>
@@ -1016,7 +1016,7 @@ function renderNotices(){
       <td><strong>${Utils.escHtml(Utils.clientName(n.clientId))}</strong>${n.isHighRisk?'<br><span class="badge badge-s74" style="margin-top:3px">SEC 74</span>':''}</td>
       <td><span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span></td>
       <td><span class="tag">${Utils.escHtml(n.section||'—')}</span></td>
-      <td class="td-mono" style="font-size:12px">${Utils.escHtml(n.caseId||'—')}</td>
+      <td style="font-size:11px">${(n.caseId||'').split('\n').filter(Boolean).map(c=>`<div class="td-mono" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-bottom:2px;font-size:11px;display:inline-block">${Utils.escHtml(c.trim())}</div>`).join('<br>')||'—'}</td>
       <td class="td-mono" style="font-size:12px">${Utils.escHtml(n.refNo||'—')}</td>
       <td class="td-muted">${Utils.fmtDate(n.dateOfIssue)}</td>
       <td>${n.replyDueDate?`<span style="${isOverdue?'color:var(--danger);font-weight:700':isDueSoon?'color:var(--warn);font-weight:600':''}">${Utils.fmtDate(n.replyDueDate)}</span>`:' — '}</td>
@@ -1054,7 +1054,7 @@ function openNoticeModal(id){
         ${['','Sec 61','Sec 65','Sec 66','Sec 73','Sec 74','Sec 75','Others'].map(s=>`<option value="${s}"${n.section===s?' selected':''}>${s||'—'}</option>`).join('')}
       </select>
     </div>
-    <div class="fg span2"><label>Case ID</label><input id="n-caseid" value="${Utils.escHtml(n.caseId||'')}" placeholder="e.g. AD2904250523137"></div>
+    <div class="fg span2"><label>Case ID(s) <span style="font-weight:400;color:var(--hint)">(one per line if multiple)</span></label><textarea id="n-caseid" rows="3" placeholder="e.g.&#10;AD360923004091G&#10;AD360923002985T&#10;AD360923002988N" style="font-family:var(--font-mono,monospace);font-size:12px">${Utils.escHtml(n.caseId||'')}</textarea></div>
     <div class="fg span2"><label>Notice Reference No.</label><input id="n-ref" value="${Utils.escHtml(n.refNo||'')}"></div>
     <div class="fg"><label>Tax Period</label><input id="n-period" value="${Utils.escHtml(n.taxPeriod||'')}" placeholder="e.g. 2022-23"></div>
     <div class="fg"><label>Date of Issue</label><input type="date" id="n-issue" value="${n.dateOfIssue||''}"></div>
@@ -1120,7 +1120,20 @@ function viewNotice(id){
     <div class="detail-section"><div class="detail-label">Notice Type</div><div class="detail-value"><span class="badge badge-notice">${Utils.escHtml(n.noticeType)}</span></div></div>
     <div class="detail-section"><div class="detail-label">Section</div><div class="detail-value"><span class="tag">${Utils.escHtml(n.section||'—')}</span></div></div>
     <div class="detail-section"><div class="detail-label">Tax Period</div><div class="detail-value">${Utils.escHtml(n.taxPeriod||'—')}</div></div>
-    <div class="detail-section"><div class="detail-label">Case ID</div><div class="detail-value font-mono">${Utils.escHtml(n.caseId||'—')}</div></div>
+    <div class="detail-section"><div class="detail-label">Case ID(s)</div>
+      <div class="detail-value">
+        ${(n.caseId||'').split('\n').filter(Boolean).map(cid=>{
+          const linkedOrder=orders.find(o=>o.caseId===cid.trim());
+          return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="font-mono" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:12px">${Utils.escHtml(cid.trim())}</span>
+            ${linkedOrder?`<span class="badge badge-order-type" style="font-size:10px">${Utils.escHtml(linkedOrder.orderType)}</span>
+            <span style="font-size:11px;color:var(--muted)">${Utils.fmtDate(linkedOrder.orderDate)}</span>
+            <span style="font-size:11px;font-weight:600;color:var(--text)">${Utils.fmtAmt(linkedOrder.demandConfirmed)}</span>
+            ${Utils.paymentBadge(linkedOrder.paymentStatus)}`:'<span style="font-size:11px;color:var(--hint)">No order yet</span>'}
+          </div>`;
+        }).join('')||'—'}
+      </div>
+    </div>
     <div class="detail-section"><div class="detail-label">Notice Ref No.</div><div class="detail-value font-mono">${Utils.escHtml(n.refNo||'—')}</div></div>
     <div class="detail-section"><div class="detail-label">Date of Issue</div><div class="detail-value">${Utils.fmtDate(n.dateOfIssue)}</div></div>
     <div class="detail-section"><div class="detail-label">Reply Due Date</div><div class="detail-value" style="${Utils.daysUntil(n.replyDueDate)<0&&n.status==='Pending Reply'?'color:var(--danger);font-weight:600':''}">${Utils.fmtDate(n.replyDueDate)}</div></div>
@@ -1237,8 +1250,9 @@ function renderOrders(){
     const ad=Utils.daysUntil(appealDeadline);
     const hasAppeal=DB.get('appeals').some(a=>a.orderId===o.id);
     return `<tr class="data-row">
-      <td>${Utils.escHtml(n?Utils.clientName(n.clientId):'—')}</td>
-      <td class="td-mono">${Utils.escHtml(n?n.refNo||'—':'—')}</td>
+      <td><strong>${Utils.escHtml(n?Utils.clientName(n.clientId):'—')}</strong></td>
+      <td class="td-mono" style="font-size:11px">${o.caseId?`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;display:inline-block">${Utils.escHtml(o.caseId)}</span>`:'—'}</td>
+      <td class="td-mono" style="font-size:11px">${Utils.escHtml(o.orderRefNo||'—')}</td>
       <td><span class="badge badge-order-type">${Utils.escHtml(o.orderType||'—')}</span></td>
       <td>${Utils.fmtDate(o.orderDate)}</td>
       <td class="td-amount">${Utils.fmtAmt(o.demandConfirmed)}</td>
@@ -1253,19 +1267,29 @@ function renderOrders(){
         <button class="btn btn-xs" style="background:var(--danger-lt);color:var(--danger);border:none;margin-left:4px" onclick="deleteRecord('orders','${o.id}')">Del</button>
       </td>
     </tr>`;
-  }).join(''):`<tr><td colspan="10"><div class="empty-state"><div class="es-title">No orders recorded yet</div></div></td></tr>`;
+  }).join(''):`<tr><td colspan="11"><div class="empty-state"><div class="es-title">No orders recorded yet</div></div></td></tr>`;
 }
 
 function openOrderModal(id,preOrderId){
   const o=id?DB.find('orders',id):{};
   const notices=DB.get('notices');
+  const selNotice=o.noticeId?DB.find('notices',o.noticeId):null;
+  const caseIdOptions=selNotice?(selNotice.caseId||'').split('\n').filter(Boolean):[];
   const body=`<div class="form-grid">
     <div class="fg span2"><label>Notice *</label>
-      <select id="o-notice">
+      <select id="o-notice" onchange="populateOrderCaseIds(this.value,'${o.caseId||''}')">
         <option value="">Select notice…</option>
-        ${notices.map(n=>`<option value="${n.id}"${o.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml(n.refNo||'no ref')})</option>`).join('')}
+        ${notices.map(n=>`<option value="${n.id}"${o.noticeId===n.id?' selected':''}>${Utils.escHtml(Utils.clientName(n.clientId))} — ${Utils.escHtml(n.noticeType)} (${Utils.escHtml((n.caseId||'').split('\n')[0]||n.refNo||'no ref')})</option>`).join('')}
       </select>
     </div>
+    <div class="fg"><label>Case ID (this order relates to)</label>
+      <select id="o-caseid">
+        <option value="">Select Case ID…</option>
+        ${caseIdOptions.map(c=>`<option value="${c.trim()}"${o.caseId===c.trim()?' selected':''}>${Utils.escHtml(c.trim())}</option>`).join('')}
+        ${!caseIdOptions.length&&o.caseId?`<option value="${Utils.escHtml(o.caseId)}" selected>${Utils.escHtml(o.caseId)}</option>`:''}
+      </select>
+    </div>
+    <div class="fg"><label>Order Ref No.</label><input id="o-refno" value="${Utils.escHtml(o.orderRefNo||'')}" placeholder="ZD36..."></div>
     <div class="fg"><label>Order Type</label>
       <select id="o-type"><option>OIO</option><option>OIA</option></select>
     </div>
@@ -1286,10 +1310,18 @@ function openOrderModal(id,preOrderId){
   if(o.orderType) setTimeout(()=>{const s=document.getElementById('o-type');if(s)s.value=o.orderType;},50);
 }
 
+function populateOrderCaseIds(noticeId, currentVal){
+  const sel=document.getElementById('o-caseid');
+  if(!sel)return;
+  const n=DB.find('notices',noticeId);
+  const ids=n?(n.caseId||'').split('\n').filter(Boolean):[];
+  sel.innerHTML='<option value="">Select Case ID…</option>'+ids.map(c=>`<option value="${c.trim()}"${currentVal===c.trim()?' selected':''}>${Utils.escHtml(c.trim())}</option>`).join('');
+}
+
 function saveOrder(id){
   const noticeId=document.getElementById('o-notice').value;
   if(!noticeId){toast('Select a notice','danger');return;}
-  const obj={noticeId,orderType:document.getElementById('o-type').value,orderDate:document.getElementById('o-date').value,demandConfirmed:document.getElementById('o-confirmed').value,demandDropped:document.getElementById('o-dropped').value,refund:document.getElementById('o-refund').value,paymentStatus:document.getElementById('o-payment').value,notes:document.getElementById('o-notes').value.trim()};
+  const obj={noticeId,caseId:document.getElementById('o-caseid').value.trim(),orderRefNo:document.getElementById('o-refno').value.trim(),orderType:document.getElementById('o-type').value,orderDate:document.getElementById('o-date').value,demandConfirmed:document.getElementById('o-confirmed').value,demandDropped:document.getElementById('o-dropped').value,refund:document.getElementById('o-refund').value,paymentStatus:document.getElementById('o-payment').value,notes:document.getElementById('o-notes').value.trim()};
   if(id){DB.update('orders',id,obj);toast('Order updated','success');}
   else{
     DB.create('orders',obj);
